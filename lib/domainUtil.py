@@ -18,23 +18,39 @@ def getChildDomain(mysql):
                     time.sleep(1800)
                 else:
                     break
-            #更新扫描时间
-            mysql.execute('delete from target where id=%s',(result['id']))
+
+            mysql.execute('delete from target where id=%s;',(result['id']))
 
             #调用工具开始爆破子域名
             print('[+] 开始 %s 子域名扫描,命令如下:'%result['domain'])
-            Process('python3 tools/OneForAll/oneforall.py --target %s --path domains.csv --alive true --fmt csv run'%result['domain']).exe(outFlag=False)
+            Process('python3 tools/OneForAll/oneforall.py --target %s --path domains.csv --alive true --fmt csv run'%result['domain']).exe(outFlag=True)
 
-            print('[+] 根域 %s 扫描结束，发现子域名：' % result['domain'])
             rows = []
             with open('domains.csv','r') as domains:
                 domain_csv = csv.DictReader(domains)
                 for line in domain_csv:
-                    print('[+] %s'%line['url'])
-                    rows.append((line['url']))
-            #区分临时扫描和长久扫描
+                    for ip in line['ip'].split(','):
+                        rows.append(ip)
+            rows = list(set(rows))#去重
+            with open('iptemp.txt', 'w') as ipfile:
+                for row in rows:
+                    ipfile.write(row+'\n')
+
+            print('开始端口扫描')
+            Process('./tools/naabu -stats -l iptemp.txt -p 80,443,8080,2053,2087,2096,8443,2083,2086,2095,8880,2052,2082,3443,8791,8887,8888,444,9443,2443,10000,10001,8082,8444,20000,8081,8445,8446,8447 -silent -o open-domain.txt').exe()
+            print('开始http服务存活扫描')
+            Process('./tools/httpx -silent -stats -l open-domain.txt -fl 0 -mc 200,302,403,404,204,303,400,401 -o newurls.txt').exe()
+
+            rows.clear()
+            print('发现http服务如下：')
+            with open('newurls.txt', 'r') as newurlsfile:
+                for line in newurlsfile.readlines():
+                    print(line)
+                    if len(line.strip()):
+                        rows.append(line.strip())
+            print('\n\n\n')
             if len(rows) > 0:
                 mysql.execute('replace into domains(url) value(%s);',args=rows)
             Process('rm -rf tools/OneForAll/result/*').exe(outFlag=False)
     except KeyboardInterrupt:
-        mysql.execute('insert into target(domain) value(%s);'% result['domain'])
+        mysql.execute('insert into target(domain) value(%s);',(result['domain']))
