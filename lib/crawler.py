@@ -21,7 +21,7 @@ def crawler(mysql,ports):
 	while True:
 		for port in ports: #因为xray慢，所以用不同的端口去跑
 			#获取目标
-			result = mysql.execute('select a.id,a.url,a.flag,b.company,a.flag from domains a left join target b on a.parentId = b.id where a.flag<>99 ORDER BY a.scantime asc limit 0,1;')[0]
+			result = mysql.execute('select id,url from domains limit 0,1;')[0]
 
 			#目标内容太少，跳过扫描
 			if result['flag'] > 1 and result['flag'] < 9:
