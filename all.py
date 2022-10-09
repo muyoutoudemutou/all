@@ -28,18 +28,7 @@ if __name__ == '__main__':
                     ports = args[0].split(',')
                     crawler(mysql,ports)
             elif arg == 'a':
-                longtime = input('添加长期计划输入1，其他任意：')
-                if longtime == '1':
-                    longtime = 1
-                else:
-                    longtime = 0
-
-                company = input('是否输入所属公司，输入则直接键入公司，否则输入会车跳过：')
-                if len(company) < 1:
-                    company = 'null'
-
                 rows = []
-
                 print('输入domain，输入quit退出，输入回车终止')
                 while True:
                     temp = input('请输入domain:')
@@ -48,9 +37,9 @@ if __name__ == '__main__':
                     elif len(temp) < 1:
                         break
                     else:
-                        rows.append((temp,longtime,company))
+                        rows.append(temp)
                 mysql.execute(
-                        'replace into target(domain,flag,company) value(%s,%s,%s);',
+                        'replace into target(domain) value(%s);',
                         args=rows)
 
     mysql.close()
