@@ -50,7 +50,7 @@ if __name__ == '__main__':
                     else:
                         rows.append((temp,longtime,company))
                 mysql.execute(
-                        'replace into target(domain,longtime,company) value(%s,%s,%s);',
+                        'replace into target(domain,flag,company) value(%s,%s,%s);',
                         args=rows)
 
     mysql.close()
