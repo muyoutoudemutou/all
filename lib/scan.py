@@ -114,7 +114,7 @@ def scan(ports, mysql):
             time.sleep(5)#防止mysql误读
         while True:
             for port in ports:
-                if not threadDict[port][0].isAlive():
+                if not threadDict[port][0].is_alive():
                     result = mysql.execute('select id,url from domains limit 0,1;')[0]
                     threadDict.setdefault(port, xray_crawler(port, result['url']),result['url'])
                     threadDict[port][0].start()
@@ -126,6 +126,6 @@ def scan(ports, mysql):
     except KeyboardInterrupt:
         if len(threadDict):
             for port in ports:
-                if threadDict[port].isAlive():
+                if threadDict[port].is_alive():
                     print('键盘停止，插入未完成%s数据'%threadDict[port][1])
                     mysql.execute('replace into domains(url) value(%s);' % threadDict[port][1])
