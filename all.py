@@ -15,7 +15,7 @@ if __name__ == '__main__':
         passwd = conf.readline().strip()
         db = conf.readline().strip()
         host = conf.readline().strip()
-    mysql = MySQLconnect('*','*','*',host='*')
+    mysql = MySQLconnect(user,passwd,db,host=host)
 
     if len(sys.argv) < 2:
         print('python3 all.py -m domain|s(xray)|a(add) port,port(xray)')
