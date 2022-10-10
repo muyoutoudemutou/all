@@ -24,7 +24,6 @@ if __name__ == '__main__':
             if arg == 'domain':
                 getChildDomain(mysql)
             elif arg == 's':
-                mysql.close()
                 if len(args) > 0:
                     scan(args[0],mysql)#输入监听的端口号
             elif arg == 'a':
