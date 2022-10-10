@@ -75,8 +75,8 @@ class crawler(threading.Thread):
 
     def run(self):
         Process(
-            'tools/crawlergo -c /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome -t 5 -f smart --fuzz-path --custom-headers \'%s\' --push-to-proxy http://127.0.0.1:%s --push-pool-max 10 --output-mode json %s' % (
-                json.dumps(get_random_headers()), self.port, self.url)).exe(outFlag=False)
+            './tools/rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
+                 self.url,self.port)).exe(outFlag=False)
 
 
 class xray_crawler(threading.Thread):
