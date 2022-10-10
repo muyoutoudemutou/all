@@ -116,7 +116,7 @@ def scan(ports, mysql):
             for port in ports:
                 if not threadDict[port][0].is_alive():
                     result = mysql.execute('select id,url from domains limit 0,1;')[0]
-                    threadDict.setdefault(port, xray_crawler(port, result['url']),result['url'])
+                    threadDict.setdefault(port,(xray_crawler(port,result['url']),result['url']))
                     threadDict[port][0].start()
                     mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
             if not appthread.is_alive():
