@@ -103,7 +103,7 @@ def scan(ports, mysql):
     threadDict = {}
     appthread = threading.Thread(target=app_run)
     appthread.start()
-    ports = ports.sploit(',')
+    ports = ports.split(',')
     try:
         for port in ports:
             # 获取目标
@@ -114,7 +114,7 @@ def scan(ports, mysql):
             time.sleep(5)#防止mysql误读
         while True:
             for port in ports:
-                if not threadDict[port].isAlive():
+                if not threadDict[port][0].isAlive():
                     result = mysql.execute('select id,url from domains limit 0,1;')[0]
                     threadDict.setdefault(port, xray_crawler(port, result['url']),result['url'])
                     threadDict[port][0].start()
