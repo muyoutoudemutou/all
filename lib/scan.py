@@ -46,7 +46,7 @@ class xrayProcess(threading.Thread):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/%s/xray/' % self.port)
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
-        popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output 127.0.0.1:2233' % (
+        popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output http://127.0.0.1:2233/webhook' % (
             self.port), stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True, env=env)
         try:
             while True:
@@ -67,7 +67,7 @@ class xrayProcess(threading.Thread):
                 time.sleep(0.1)
         except Exception as e:
             print(e)
-        print('[+]%s %s命令完成' % (getTime(), self.port))
+        print('[+]%s %s 命令完成' % (getTime(), self.port))
         popen.kill()
 
 
