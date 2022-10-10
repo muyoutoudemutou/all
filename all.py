@@ -10,6 +10,11 @@ from lib.scan import scan
 
 if __name__ == '__main__':
     opts, args = getopt.getopt(sys.argv[1:], 'm:', ['method='])
+    with open('mysql.conf','r') as conf:
+        user = conf.readline().strip()
+        passwd = conf.readline().strip()
+        db = conf.readline().strip()
+        host = conf.readline().strip()
     mysql = MySQLconnect('*','*','*',host='*')
 
     if len(sys.argv) < 2:
