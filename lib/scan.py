@@ -74,6 +74,7 @@ class xrayProcess(threading.Thread):
 class crawler(threading.Thread):
 
     def __init__(self, port, url):
+        threading.Thread.__init__(self)
         self.port = port
         self.url = url
 
@@ -86,6 +87,7 @@ class crawler(threading.Thread):
 class xray_crawler(threading.Thread):
 
     def __init__(self, port, url):
+        threading.Thread.__init__(self)
         self.port = port
         self.url = url
 
