@@ -7,14 +7,29 @@ from subprocess import Popen, PIPE, STDOUT
 import warnings, simplejson, os
 import json, time, re, threading
 from fake_useragent import UserAgent
+from flask import Flask, request
+import telebot
 
 ua = UserAgent(path="fake_ua.json")
 
 warnings.filterwarnings(action='ignore')
 
+app = Flask(__name__)
+
+tb = telebot.TeleBot('token')
+
+@app.route('/webhook', methods=['POST'])
+def xray_webhook():
+  result=request.json
+  if 'vuln' in result['type']:
+    tb.send_message('id', str(result))#如果存在漏洞就推送
+  return 'ok'
+
+if __name__ == '__main__':
+  app.run(host='127.0.0.1',port=2233)
 
 def get_random_headers():
-    headers = {'User-Agent': ua.random, 'Spider-Name': 'hacdoc'}
+    headers = {'User-Agent': ua.random}
     return headers
 
 
@@ -27,8 +42,8 @@ class xrayProcess(threading.Thread):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/%s/xray/' % self.port)
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
-        popen = Popen('./xray ws --listen 127.0.0.1:%s --html-output xray_%s_result.html' % (
-            self.port, getTime(format='%Y%m%d%H%M%S')), stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True, env=env)
+        popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output 127.0.0.1:2233' % (
+            self.port), stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True, env=env)
         try:
             while True:
                 line = popen.stdout.readline()
@@ -80,6 +95,7 @@ class xray_crawler(threading.Thread):
 
 def scan(ports, mysql):
     threadDict = {}
+    app.run()#起推送服务
     try:
         for port in ports:
             # 获取目标
@@ -87,6 +103,7 @@ def scan(ports, mysql):
             threadDict.setdefault(port,(xray_crawler(port,result['url']),result['url']))
             threadDict[port][0].start()
             mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
+            time.sleep(5)#防止mysql误读
         while True:
             for port in ports:
                 if not threadDict[port].isAlive():
@@ -94,6 +111,7 @@ def scan(ports, mysql):
                     threadDict.setdefault(port, xray_crawler(port, result['url']),result['url'])
                     threadDict[port][0].start()
                     mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
+            time.sleep(10)
     except KeyboardInterrupt:
         if len(threadDict):
             for port in ports:
