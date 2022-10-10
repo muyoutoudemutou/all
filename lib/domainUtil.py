@@ -54,3 +54,6 @@ def getChildDomain(mysql):
             Process('rm -rf tools/OneForAll/result/*').exe(outFlag=False)
     except KeyboardInterrupt:
         mysql.execute('insert into target(domain) value(%s);',(result['domain']))
+    except Exception:
+        print('报错，重新执行')
+        getChildDomain(mysql)
