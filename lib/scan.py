@@ -103,6 +103,7 @@ def scan(ports, mysql):
     threadDict = {}
     appthread = threading.Thread(target=app_run)
     appthread.start()
+    ports = ports.sploit(',')
     try:
         for port in ports:
             # 获取目标
@@ -126,4 +127,5 @@ def scan(ports, mysql):
         if len(threadDict):
             for port in ports:
                 if threadDict[port].isAlive():
+                    print('键盘停止，插入未完成%s数据'%threadDict[port][1])
                     mysql.execute('replace into domains(url) value(%s);' % threadDict[port][1])
