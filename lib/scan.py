@@ -30,9 +30,9 @@ def xray_webhook():
         print('[+]发现漏洞，地址为%s：'%result['data']['detail']['addr'])
         print('[+]漏洞类型为：%s'%result['data']['plugin'])
         result = str(result)
-        if len(result) > 4095:
-            for x in range(0, len(result), 4095):
-                tb.send_message(telegramid,  result[x:x + 4095])
+        if len(result) > 2047:
+            for x in range(0, len(result), 2047):
+                tb.send_message(telegramid,  result[x:x + 2047])
         else:
             tb.send_message(telegramid, result)
     return 'ok'
@@ -141,6 +141,9 @@ def scan(ports, mysql):
             time.sleep(10)
     except KeyboardInterrupt:
         if len(threadDict):
+            rows = []
             for port in ports:
                 if threadDict[port][0].is_alive():
-                    mysql.execute('replace into domains(url) value("'+threadDict[port][1]+'");')
+                    rows.append(threadDict[port][1])
+            if len(rows):
+                mysql.execute('replace into domains(url) value(%s);',args=rows)
