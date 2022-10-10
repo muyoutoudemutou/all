@@ -16,13 +16,17 @@ warnings.filterwarnings(action='ignore')
 
 app = Flask(__name__)
 
-tb = telebot.TeleBot('token')
+with open('conf.conf','r') as conf:
+    token = conf.readline().strip()
+    telegramid = conf.readline().strip()
+
+tb = telebot.TeleBot(token)
 
 @app.route('/webhook', methods=['POST'])
 def xray_webhook():
   result=request.json
   if 'vuln' in result['type']:
-    tb.send_message('id', str(result))#如果存在漏洞就推送
+    tb.send_message(telegramid, str(result))#如果存在漏洞就推送
   return 'ok'
 
 if __name__ == '__main__':

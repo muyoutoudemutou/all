@@ -6,7 +6,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from lib.domainUtil import getChildDomain
 from lib.mysqlConnect import MySQLconnect
 from lib.scan import scan
-from lib.crawler import crawler
 
 
 if __name__ == '__main__':
@@ -14,19 +13,15 @@ if __name__ == '__main__':
     mysql = MySQLconnect('*','*','*',host='*')
 
     if len(sys.argv) < 2:
-        print('python3 all.py -m domain|x(xray)|c(crawler)|a(add) port(xray port) port,port(crawler)')
+        print('python3 all.py -m domain|s(xray)|a(add) port,port(xray)')
     for opt,arg in opts:
         if opt in ('method','-m'):
             if arg == 'domain':
                 getChildDomain(mysql)
-            elif arg == 'x':
+            elif arg == 's':
                 mysql.close()
                 if len(args) > 0:
-                    scan(args[0])#输入监听的端口号
-            elif arg == 'c':
-                if len(args) > 0:
-                    ports = args[0].split(',')
-                    crawler(mysql,ports)
+                    scan(args[0],mysql)#输入监听的端口号
             elif arg == 'a':
                 rows = []
                 print('输入domain，输入quit退出，输入回车终止')
