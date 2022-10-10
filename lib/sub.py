@@ -37,7 +37,7 @@ class Process(threading.Thread):
         except Exception as e:
             print(e)
         if outFlag:
-            print('%s 命令完成' % getTime())
+            print('%s 命令完成 %s' % (getTime(),self.common))
         self.Popen.kill()
         self.result = temp
         return self.result

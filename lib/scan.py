@@ -1,5 +1,6 @@
 # coding=utf-8
 # !/usr/bin/env python3
+import sys
 
 from lib.utils import getTime
 from lib.sub import Process
@@ -24,10 +25,12 @@ tb = telebot.TeleBot(token)
 
 @app.route('/webhook', methods=['POST'])
 def xray_webhook():
-  result=request.json
-  if 'vuln' in result['type']:
-    tb.send_message(telegramid, str(result))#如果存在漏洞就推送
-  return 'ok'
+    result=request.json
+    if 'vuln' in result['type']:
+        print('[+]发现漏洞，地址为%s：'%result['data']['detail']['addr'])
+        print('[+]漏洞类型为：%s'%result['data']['plugin'])
+        tb.send_message(telegramid, str(result))#如果存在漏洞就推送
+    return 'ok'
 
 def app_run():
     app.run(host='127.0.0.1',port=2233)#起推送服务
@@ -53,10 +56,11 @@ class xrayProcess(threading.Thread):
                 line = popen.stdout.readline()
                 if line:
                     try:
-                        if 'pending: 0' in line:
+                        if 'pending: 0' in line.decode('utf-8'):
                             print('%s xray扫描结束' % self.port)
                             popen.kill()
-                        elif 'starting mitm server at 127.0.0.1' in line:
+                            break
+                        elif 'starting mitm server at 127.0.0.1' in line.decode('utf-8'):
                             print('%s xray扫描开始' % self.port)
                     except:
                         pass
@@ -67,11 +71,10 @@ class xrayProcess(threading.Thread):
                 time.sleep(0.1)
         except Exception as e:
             print(e)
-        print('[+]%s %s 命令完成' % (getTime(), self.port))
         popen.kill()
 
 
-class crawler(threading.Thread):
+class rad(threading.Thread):
 
     def __init__(self, port, url):
         threading.Thread.__init__(self)
@@ -80,7 +83,7 @@ class crawler(threading.Thread):
 
     def run(self):
         Process(
-            './tools/rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
+            '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
                  self.url,self.port)).exe(outFlag=False)
 
 
@@ -93,10 +96,17 @@ class xray_crawler(threading.Thread):
 
     def run(self):
         # xray监听开始
-        xrayProcess(self.port).start()
+        xrayThread = xrayProcess(self.port)
+        xrayThread.start()
         time.sleep(15)
+        print('xray线程启动完毕')
         # crawler开始
-        crawler(self.port, self.url).start()
+        radThread= rad(self.port, self.url)
+        radThread.start()
+        while True:
+            if not xrayThread.is_alive() and not radThread.is_alive():
+                break
+
 
 
 def scan(ports, mysql):
@@ -111,12 +121,13 @@ def scan(ports, mysql):
             threadDict.setdefault(port,(xray_crawler(port,result['url']),result['url']))
             threadDict[port][0].start()
             mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
-            time.sleep(5)#防止mysql误读
+            time.sleep(3)#防止mysql误读
         while True:
             for port in ports:
                 if not threadDict[port][0].is_alive():
+                    print('[+]%s扫描完成'%threadDict[port][1])
                     result = mysql.execute('select id,url from domains limit 0,1;')[0]
-                    threadDict.setdefault(port,(xray_crawler(port,result['url']),result['url']))
+                    threadDict[port] = (xray_crawler(port,result['url']),result['url'])
                     threadDict[port][0].start()
                     mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
             if not appthread.is_alive():
@@ -126,6 +137,6 @@ def scan(ports, mysql):
     except KeyboardInterrupt:
         if len(threadDict):
             for port in ports:
-                if threadDict[port].is_alive():
+                if threadDict[port][0].is_alive():
                     print('键盘停止，插入未完成%s数据'%threadDict[port][1])
-                    mysql.execute('replace into domains(url) value(%s);' % threadDict[port][1])
+                    mysql.execute('replace into domains(url) value("%s");' % threadDict[port][1])
