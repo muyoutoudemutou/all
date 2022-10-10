@@ -29,8 +29,8 @@ def xray_webhook():
     tb.send_message(telegramid, str(result))#如果存在漏洞就推送
   return 'ok'
 
-if __name__ == '__main__':
-  app.run(host='127.0.0.1',port=2233)
+def app_run():
+    app.run(host='127.0.0.1',port=2233)#起推送服务
 
 def get_random_headers():
     headers = {'User-Agent': ua.random}
@@ -99,7 +99,8 @@ class xray_crawler(threading.Thread):
 
 def scan(ports, mysql):
     threadDict = {}
-    app.run()#起推送服务
+    appthread = threading.Thread(target=app_run)
+    appthread.start()
     try:
         for port in ports:
             # 获取目标
@@ -115,6 +116,9 @@ def scan(ports, mysql):
                     threadDict.setdefault(port, xray_crawler(port, result['url']),result['url'])
                     threadDict[port][0].start()
                     mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
+            if not appthread.is_alive():
+                appthread = threading.Thread(target=app_run)
+                appthread.start()
             time.sleep(10)
     except KeyboardInterrupt:
         if len(threadDict):
