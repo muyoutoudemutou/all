@@ -105,7 +105,7 @@ class xray_crawler(threading.Thread):
 
     def run(self):
         # xray监听开始
-        xrayThread = xrayProcess(self.port)
+        xrayThread = xrayProcess(self.port,self.url)
         xrayThread.start()
         while True:
             if not xrayThread.is_alive():
