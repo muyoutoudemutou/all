@@ -134,7 +134,7 @@ def scan(ports, mysql):
                     flagDict[port]['url'] = result['url']
                     Process(
                         '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
-                            result['url'], port)).run(outFlag=False)  # 每个起一个rad扫描
+                            result['url'], port)).exe(outFlag=False)  # 每个起一个rad扫描
 
     except KeyboardInterrupt:
         if len(flagDict):
