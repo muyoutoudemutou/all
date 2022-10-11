@@ -63,7 +63,7 @@ class xrayProcess(threading.Thread):
     def __init__(self, port,url):
         threading.Thread.__init__(self)
         self.port = port
-        self.radThead = rad(self.port,url)
+        self.url = url
 
     def run(self):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/%s/xray/' % self.port)
@@ -83,7 +83,7 @@ class xrayProcess(threading.Thread):
                         elif 'starting mitm server at 127.0.0.1' in line.decode('utf-8'):
                             print('%s xray扫描开始' % self.port)
                             # crawler开始
-                            self.radThread.start()
+                            rad(self.port,self.url).start()
                     except:
                         pass
                 elif not line and popen.poll() != None:
@@ -96,23 +96,6 @@ class xrayProcess(threading.Thread):
         popen.kill()
 
 
-class xray_crawler(threading.Thread):
-
-    def __init__(self, port, url):
-        threading.Thread.__init__(self)
-        self.port = port
-        self.url = url
-
-    def run(self):
-        # xray监听开始
-        xrayThread = xrayProcess(self.port,self.url)
-        xrayThread.start()
-        while True:
-            if not xrayThread.is_alive():
-                break
-            time.sleep(10)
-
-
 def scan(ports, mysql):
     threadDict = {}
     appthread = threading.Thread(target=app_run)
@@ -122,7 +105,7 @@ def scan(ports, mysql):
         for port in ports:
             # 获取目标
             result = mysql.execute('select id,url from domains limit 0,1;')[0]
-            threadDict.setdefault(port,(xray_crawler(port,result['url']),result['url']))
+            threadDict.setdefault(port,(xrayProcess(port,result['url']),result['url']))
             threadDict[port][0].start()
             mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
             time.sleep(3)#防止mysql误读
@@ -131,7 +114,7 @@ def scan(ports, mysql):
                 if not threadDict[port][0].is_alive():
                     print('[+]%s扫描完成'%threadDict[port][1])
                     result = mysql.execute('select id,url from domains limit 0,1;')[0]
-                    threadDict[port] = (xray_crawler(port,result['url']),result['url'])
+                    threadDict[port] = (xrayProcess(port,result['url']),result['url'])
                     threadDict[port][0].start()
                     mysql.execute('delete from domains where id=%s', (result['id']))  # 删除
             if not appthread.is_alive():
