@@ -40,5 +40,13 @@ if __name__ == '__main__':
                 mysql.execute(
                         'replace into target(domain) value(%s);',
                         args=rows)
+            elif arg == 'f':
+                rows = []
+                with open('domains.txt') as domainFile:
+                    for line in domainFile.readlines():
+                        rows.append(line.strip())
+                mysql.execute(
+                    'replace into domains(url) value(%s);',
+                    args=rows)
 
     mysql.close()
