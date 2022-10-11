@@ -76,7 +76,7 @@ class xrayProcess(threading.Thread):
             while True:
                 line = popen.stdout.readline().decode('utf-8')
                 if line:
-                    print(line)
+                    print(line,end='')
                     try:
                         if 'pending: 0' in line:
                             print('%s xray扫描结束' % self.port)
