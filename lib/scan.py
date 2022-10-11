@@ -33,6 +33,7 @@ def xray_webhook():
         if len(result) > 2047:
             for x in range(0, len(result), 2047):
                 tb.send_message(telegramid,  result[x:x + 2047])
+                time.sleep(0.5)#避免一次性发送太多被报错
         else:
             tb.send_message(telegramid, result)
     return 'ok'

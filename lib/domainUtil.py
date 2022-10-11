@@ -26,18 +26,26 @@ def getChildDomain(mysql):
             Process('python3 tools/OneForAll/oneforall.py --target %s --path domains.csv --alive true --fmt csv run'%result['domain']).exe(outFlag=True)
 
             rows = []
+            urlrows = []
             with open('domains.csv','r') as domains:
                 domain_csv = csv.DictReader(domains)
+                print('发现域名如下：')
                 for line in domain_csv:
                     for ip in line['ip'].split(','):
                         rows.append(ip)
+                        print(line['url'])
+                        urlrows.append(line['url'])
             rows = list(set(rows))#去重
+
+            if len(rows) > 0:
+                mysql.execute('replace into domains(url) value(%s);',args=urlrows)
+
             with open('iptemp.txt', 'w') as ipfile:
                 for row in rows:
                     ipfile.write(row+'\n')
 
             print('开始端口扫描')
-            Process('./tools/naabu -stats -l iptemp.txt -p 80,443,8080,2053,2087,2096,8443,2083,2086,2095,8880,2052,2082,3443,8791,8887,8888,444,9443,2443,10000,10001,8082,8444,20000,8081,8445,8446,8447 -silent -o open-domain.txt').exe()
+            Process('./tools/naabu -stats -l iptemp.txt -p 2053,2087,2096,8443,2083,2086,2095,2052,2082,3443,444,9443,2443,10000,10001,20000,8000-8999 -silent -o open-domain.txt').exe()
             print('开始http服务存活扫描')
             Process('./tools/httpx -silent -stats -l open-domain.txt -fl 0 -mc 200,302,403,404,204,303,400,401 -o newurls.txt').exe()
 
