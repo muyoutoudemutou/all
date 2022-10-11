@@ -124,9 +124,6 @@ def scan(ports, mysql):
             time.sleep(15)
     except KeyboardInterrupt:
         if len(threadDict):
-            rows = []
             for port in ports:
                 if threadDict[port][0].is_alive():
-                    rows.append(threadDict[port][1])
-            if len(rows):
-                mysql.execute('replace into domains(url) value(%s);',args=rows)
+                    mysql.execute('replace into domains(url) value(%s);', (threadDict[port][1]))
