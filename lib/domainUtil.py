@@ -35,9 +35,10 @@ def getChildDomain(mysql):
                         rows.append(ip)
                         print(line['url'])
                         urlrows.append(line['url'])
+
             rows = list(set(rows))#去重
 
-            if len(rows) > 0:
+            if len(urlrows) > 0:
                 mysql.execute('replace into domains(url) value(%s);',args=urlrows)
 
             with open('iptemp.txt', 'w') as ipfile:

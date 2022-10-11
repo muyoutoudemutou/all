@@ -71,18 +71,18 @@ class xrayProcess(threading.Thread):
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
         popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output http://127.0.0.1:2233/webhook' % (
-            self.port), stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True, env=env)
+            self.port), stdout=PIPE, shell=True, env=env)
         try:
             while True:
-                line = popen.stdout.readline()
+                line = popen.stdout.readline().decode('utf-8')
                 if line:
+                    print(line)
                     try:
-                        if 'pending: 0' in line.decode('utf-8'):
+                        if 'pending: 0' in line:
                             print('%s xray扫描结束' % self.port)
                             popen.kill()
                             break
-                        elif 'starting mitm server at 127.0.0.1' in line.decode('utf-8'):
-                            print('%s xray扫描开始' % self.port)
+                        elif 'starting mitm server at 127.0.0.1' in line:
                             # crawler开始
                             rad(self.port,self.url).start()
                     except:
