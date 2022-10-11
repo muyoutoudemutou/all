@@ -37,18 +37,33 @@ def xray_webhook():
             tb.send_message(telegramid, result)
     return 'ok'
 
+
 def app_run():
     app.run(host='127.0.0.1',port=2233)#起推送服务
+
 
 def get_random_headers():
     headers = {'User-Agent': ua.random}
     return headers
 
 
-class xrayProcess(threading.Thread):
-    def __init__(self, port):
+class rad(threading.Thread):
+
+    def __init__(self, port, url):
         threading.Thread.__init__(self)
         self.port = port
+        self.url = url
+
+    def run(self):
+        Process(
+            '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
+                 self.url,self.port)).exe(outFlag=False)
+
+class xrayProcess(threading.Thread):
+    def __init__(self, port,url):
+        threading.Thread.__init__(self)
+        self.port = port
+        self.radThead = rad(self.port,url)
 
     def run(self):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/%s/xray/' % self.port)
@@ -67,6 +82,8 @@ class xrayProcess(threading.Thread):
                             break
                         elif 'starting mitm server at 127.0.0.1' in line.decode('utf-8'):
                             print('%s xray扫描开始' % self.port)
+                            # crawler开始
+                            self.radThread.start()
                     except:
                         pass
                 elif not line and popen.poll() != None:
@@ -77,19 +94,6 @@ class xrayProcess(threading.Thread):
         except Exception as e:
             print(e)
         popen.kill()
-
-
-class rad(threading.Thread):
-
-    def __init__(self, port, url):
-        threading.Thread.__init__(self)
-        self.port = port
-        self.url = url
-
-    def run(self):
-        Process(
-            '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
-                 self.url,self.port)).exe(outFlag=False)
 
 
 class xray_crawler(threading.Thread):
@@ -103,15 +107,10 @@ class xray_crawler(threading.Thread):
         # xray监听开始
         xrayThread = xrayProcess(self.port)
         xrayThread.start()
-        time.sleep(15)
-        print('xray线程启动完毕')
-        # crawler开始
-        radThread= rad(self.port, self.url)
-        radThread.start()
         while True:
-            if not xrayThread.is_alive() and not radThread.is_alive():
+            if not xrayThread.is_alive():
                 break
-
+            time.sleep(10)
 
 
 def scan(ports, mysql):
@@ -138,7 +137,7 @@ def scan(ports, mysql):
             if not appthread.is_alive():
                 appthread = threading.Thread(target=app_run)
                 appthread.start()
-            time.sleep(10)
+            time.sleep(15)
     except KeyboardInterrupt:
         if len(threadDict):
             rows = []
