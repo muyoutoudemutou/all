@@ -26,11 +26,14 @@ pendingre = re.compile(r'pending: (\d[+])')
 
 @app.route('/webhook', methods=['POST'])
 def xray_webhook():
-    result=request.json
-    if 'vuln' in result['type']:
-        print('[+]发现漏洞，地址为%s：'%result['data']['detail']['addr'])
-        print('[+]漏洞类型为：%s'%result['data']['plugin'])
-        result = str(result)
+    resultObj=request.json
+    if 'vuln' in resultObj['type']:
+        print('[+]发现漏洞，地址为%s：'%resultObj['data']['detail']['addr'])
+        print('[+]漏洞类型为：%s'%resultObj['data']['plugin'])
+        result = str(resultObj)
+        if len(result) > 10*2047:
+            resultObj['data']['detail']['snapshot'] = None
+            result = str(resultObj)
         if len(result) > 2047:
             for x in range(0, len(result), 2047):
                 tb.send_message(telegramid,  result[x:x + 2047])
@@ -124,7 +127,7 @@ def scan(ports, mysql):
 
         #监控，xray任务少了rad就开始爬
         while True:
-            time.sleep(60)
+            time.sleep(30)
             for port in flagDict.keys():
                 print('[+] %s线程当前任务数: %d'%(port,flagDict[port]['pending']))
                 if flagDict[port]['pending'] < 10:#xray任务数小于50
