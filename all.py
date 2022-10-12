@@ -38,7 +38,7 @@ if __name__ == '__main__':
                     else:
                         rows.append(temp)
                 mysql.execute(
-                        'replace into target(domain) value(%s);',
+                        'insert into target(domain) value(%s);',
                         args=rows)
             elif arg == 'f':
                 rows = []
@@ -46,7 +46,7 @@ if __name__ == '__main__':
                     for line in domainFile.readlines():
                         rows.append(line.strip())
                 mysql.execute(
-                    'replace into domains(url) value(%s);',
+                    'insert into domains(url) value(%s);',
                     args=rows)
 
     mysql.close()

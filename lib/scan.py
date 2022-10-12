@@ -140,6 +140,6 @@ def scan(ports, mysql):
         if len(flagDict):
             for port in ports:
                 if flagDict[port]['xrayProcess'].is_alive():
-                    mysql.execute('replace into domains(url) value(%s);', (flagDict[port]['url']))
+                    mysql.execute('insert into domains(url) value(%s);', (flagDict[port]['url']))
     finally:
         tb.send_message(telegramid, '扫描任务停止')

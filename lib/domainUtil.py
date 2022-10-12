@@ -39,7 +39,7 @@ def getChildDomain(mysql):
             rows = list(set(rows))#去重
 
             if len(urlrows) > 0:
-                mysql.execute('replace into domains(url) value(%s);',args=urlrows)
+                mysql.execute('insert into domains(url) value(%s);',args=urlrows)
 
             with open('iptemp.txt', 'w') as ipfile:
                 for row in rows:
@@ -59,7 +59,7 @@ def getChildDomain(mysql):
                         rows.append(line.strip())
             print('\n\n\n')
             if len(rows) > 0:
-                mysql.execute('replace into domains(url) value(%s);',args=rows)
+                mysql.execute('insert into domains(url) value(%s);',args=rows)
             Process('rm -rf tools/OneForAll/result/*').exe(outFlag=False)
     except KeyboardInterrupt:
         mysql.execute('insert into target(domain) value(%s);',(result['domain']))
