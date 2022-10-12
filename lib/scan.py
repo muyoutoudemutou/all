@@ -14,6 +14,11 @@ warnings.filterwarnings(action='ignore')
 
 app = Flask(__name__)
 
+ignoreVul = []
+with open('ignore.conf','r') as ignore:
+    for line in ignore.readlines():
+        ignoreVul.append(line.strip())
+
 with open('conf.conf','r') as conf:
     token = conf.readline().strip()
     telegramid = conf.readline().strip()
@@ -24,16 +29,19 @@ flagDict = {}
 
 pendingre = re.compile(r'pending: (\d[+])')
 
+
+
 @app.route('/webhook', methods=['POST'])
 def xray_webhook():
     resultObj=request.json
     if 'vuln' in resultObj['type']:
         print('[+]发现漏洞，地址为%s：'%resultObj['data']['detail']['addr'])
         print('[+]漏洞类型为：%s'%resultObj['data']['plugin'])
-        result = str(resultObj)
-        if len(result) > 10*2047:
+        if resultObj['data']['plugin'] in ignoreVul:#垃圾漏洞咱就不推了
+            return 'ignore'
+        if len(str(resultObj)) > 10*2047:
             resultObj['data']['detail']['snapshot'] = None
-            result = str(resultObj)
+        result = str(resultObj)
         if len(result) > 2047:
             for x in range(0, len(result), 2047):
                 tb.send_message(telegramid,  result[x:x + 2047])
