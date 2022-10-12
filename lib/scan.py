@@ -1,7 +1,7 @@
 # coding=utf-8
 # !/usr/bin/env python3
 import sys
-
+from lib.utils import getTime
 from lib.sub import Process
 from subprocess import Popen, PIPE
 import time, re, threading,warnings, os ,telebot
@@ -60,8 +60,8 @@ class xrayProcess(threading.Thread):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/%s/xray/' % self.port)
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
-        popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output http://127.0.0.1:2233/webhook' % (
-            self.port), stdout=PIPE, shell=True, env=env)
+        popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output http://127.0.0.1:2233/webhook ----html-output %s' % (
+            self.port,getTime()), stdout=PIPE, shell=True, env=env)
         count = 0
         try:
             while True:
