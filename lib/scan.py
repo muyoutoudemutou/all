@@ -132,8 +132,8 @@ def scan(ports, mysql):
                     P = Process(
                         '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
                             result['url'], port))  # 每个起一个rad扫描
-                    P.run(outFlag=False)
-                    threading.Timer(1800, P.kill)
+                    P.start()
+                    threading.Timer(1800, P.kill).start()
 
     except KeyboardInterrupt:
         if len(flagDict):
