@@ -43,3 +43,6 @@ class Process(threading.Thread):
 
     def run(self):
         self.result = self.exe(False)
+
+    def kill(self):
+        self.Popen.kill()

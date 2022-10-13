@@ -30,7 +30,6 @@ flagDict = {}
 pendingre = re.compile(r'pending: (\d[+])')
 
 
-
 @app.route('/webhook', methods=['POST'])
 def xray_webhook():
     resultObj=request.json
@@ -120,19 +119,6 @@ def scan(ports, mysql):
                     break
                 temp = False
 
-        #首次启动
-
-        for port in ports:
-            print('首次启动rad')
-            result = mysql.execute('select id,url from domains limit 0,1;')[0]
-            mysql.execute('delete from domains where id=%s;',(result['id']))
-            flagDict[port]['url'] = result['url']
-            print('[+] 当前%s线程扫描目标：%s'%(port,result['url']))
-            Process(
-                '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
-                    result['url'], port)).exe(outFlag=False)#每个起一个rad扫描
-
-
         #监控，xray任务少了rad就开始爬
         while True:
             time.sleep(30)
@@ -143,9 +129,11 @@ def scan(ports, mysql):
                     mysql.execute('delete from domains where id=%s;', (result['id']))
                     print('[+] 当前%s线程扫描目标：%s' % (port, result['url']))
                     flagDict[port]['url'] = result['url']
-                    Process(
+                    P = Process(
                         '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
-                            result['url'], port)).exe(outFlag=False)  # 每个起一个rad扫描
+                            result['url'], port))  # 每个起一个rad扫描
+                    P.run(outFlag=False)
+                    threading.Timer(1800, P.kill)
 
     except KeyboardInterrupt:
         if len(flagDict):
