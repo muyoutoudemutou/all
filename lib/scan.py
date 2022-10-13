@@ -68,7 +68,7 @@ class xrayProcess(threading.Thread):
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
         popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output http://127.0.0.1:2233/webhook --html-output %s.html' % (
-            self.port,getTime()), stdout=PIPE, shell=True, env=env)
+            self.port,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         count = 0
         try:
             while True:
