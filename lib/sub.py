@@ -41,8 +41,8 @@ class Process(threading.Thread):
         self.result = temp
         return self.result
 
-    def run(self):
-        self.result = self.exe(False)
+    def run(self,outFlag=True):
+        self.result = self.exe(outFlag)
 
     def kill(self):
         self.Popen.kill()
