@@ -18,14 +18,13 @@ if __name__ == '__main__':
     mysql = MySQLconnect(user,passwd,db,host=host)
 
     if len(sys.argv) < 2:
-        print('python3 all.py -m domain|s(xray)|a(add) port,port(xray)')
+        print('python3 all.py -m domain|s(xray)|a(add)|f')
     for opt,arg in opts:
         if opt in ('method','-m'):
             if arg == 'domain':
                 getChildDomain(mysql)
             elif arg == 's':
-                if len(args) > 0:
-                    scan(args[0],mysql)#输入监听的端口号
+                scan(mysql)#输入监听的端口号
             elif arg == 'a':
                 rows = []
                 print('输入domain，输入quit退出，输入回车终止')
@@ -48,5 +47,7 @@ if __name__ == '__main__':
                 mysql.execute(
                     'insert into domains(url) value(%s);',
                     args=rows)
+            else:
+                print('python3 all.py -m domain|s(xray)|a(add)|f')
 
     mysql.close()

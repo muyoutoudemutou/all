@@ -1,8 +1,7 @@
 # coding=utf-8
 # !/usr/bin/env python3
-import sys
+
 from lib.utils import getTime
-from lib.sub import Process
 from subprocess import Popen, PIPE
 import time, re, threading,warnings, os ,telebot
 from fake_useragent import UserAgent
@@ -58,33 +57,22 @@ def get_random_headers():
     headers = {'User-Agent': ua.random}
     return headers
 
-class xrayProcess(threading.Thread):
-    def __init__(self, port):
-        threading.Thread.__init__(self)
-        self.port = port
+class xrayProcess():
+    def __init__(self,url):
+        self.url = url
 
     def run(self):
-        os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/%s/xray/' % self.port)
+        os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/xray/')
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
-        popen = Popen('./xray ws --listen 127.0.0.1:%s --webhook-output http://127.0.0.1:2233/webhook --html-output ../../../xrayresult/%s-%s.html' % (
-            self.port,getTime('%Y%m%d%H%M%S'),self.port), stdout=PIPE, shell=True, env=env)
-        count = 0
+        popen = Popen('./xray ws --basic-crawler %s --webhook-output http://127.0.0.1:2233/webhook --html-output ../../../xrayresult/%s.html' % (
+            self.url,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         try:
             while True:
                 line = popen.stdout.readline().decode('utf-8')
-                count += 1
                 if line:
                     try:
-                        if not flagDict[self.port]['flag'] and 'starting mitm server at 127.0.0.1' in line:
-                            # 标记开始
-                            flagDict[self.port] = {'flag': True, 'pending': 0}
-                            print('[+] 线程 %s 启动完成！'%self.port)
-                        if count > 300:
-                            pending = pendingre.search().group()
-                            if pending:
-                                flagDict[self.port]['pending'] = pending.group()
-                                count = 0
+                        print(line)
                     except:
                         pass
                 elif not line and popen.poll() != None:
@@ -96,49 +84,18 @@ class xrayProcess(threading.Thread):
         finally:
             popen.kill()
 
-def scan(ports, mysql):
+def scan(mysql):
     try:
         appthread = threading.Thread(target=app_run)
         appthread.start()
         print('[+] webhook开启成功')
 
-        #xray线程启动
-        ports = ports.split(',')
-        print('[+] 共%d个扫描线程，分别为:'%len(ports))
-        for port in ports:
-            flagDict.setdefault(port, {'flag': False, 'pending': 0,'xrayProcess':None})
-            flagDict[port]['xrayProcess'] = xrayProcess(port)
-            flagDict[port]['xrayProcess'].start()
-
-        #测试是否启动完成，开始启动rad
-        temp = True
-        while temp:
-            for port in ports:
-                if not flagDict[port]['flag']:#只要有存在false就会True跳出，爆出循环了
-                    temp = True
-                    break
-                temp = False
-
-        #监控，xray任务少了rad就开始爬
         while True:
-            time.sleep(30)
-            for port in flagDict.keys():
-                print('[+] %s线程当前任务数: %d'%(port,flagDict[port]['pending']))
-                if flagDict[port]['pending'] < 10:#xray任务数小于50
-                    result = mysql.execute('select id,url from domains limit 0,1;')[0]
-                    mysql.execute('delete from domains where id=%s;', (result['id']))
-                    print('[+] 当前%s线程扫描目标：%s' % (port, result['url']))
-                    flagDict[port]['url'] = result['url']
-                    P = Process(
-                        '../../rad/rad -t %s --http-proxy http://127.0.0.1:%s' % (
-                            result['url'], port))  # 每个起一个rad扫描
-                    P.start()
-                    threading.Timer(1800, P.kill).start()
+            result = mysql.execute('select id,url from domains limit 0,1;')[0]
+            xrayProcess(result['url']).run()
+            mysql.execute('delete from domains where id=%s;', (result['id']))
 
     except KeyboardInterrupt:
-        if len(flagDict):
-            for port in ports:
-                if flagDict[port]['xrayProcess'].is_alive():
-                    mysql.execute('insert into domains(url) value(%s);', (flagDict[port]['url']))
+        pass
     finally:
         tb.send_message(telegramid, '扫描任务停止')
