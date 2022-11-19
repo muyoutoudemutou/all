@@ -72,7 +72,7 @@ class xrayProcess():
                 line = popen.stdout.readline().decode('utf-8')
                 if line:
                     try:
-                        print(line)
+                        print(line,end='')
                     except:
                         pass
                 elif not line and popen.poll() != None:
