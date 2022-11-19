@@ -10,7 +10,11 @@ def getChildDomain(mysql):
     try:
         while True:
             #获取目标
-            result = mysql.execute('select id,domain from target limit 0,1;')[0]
+            try:
+                result = mysql.execute('select id,domain from target limit 0,1;')[0]
+            except IndexError:
+                print('[-] 目前无扫描域名，等待5分钟。')
+                time.sleep(300)
             while True:
                 count = mysql.execute('select count(id) as count from domains;')[0]['count']
                 if count > 300:
