@@ -15,13 +15,12 @@ def getChildDomain(mysql):
             except IndexError:
                 print('[-] 目前无扫描域名，等待5分钟。')
                 time.sleep(300)
-            while True:
-                count = mysql.execute('select count(id) as count from domains;')[0]['count']
-                if count > 300:
-                    print('目前目标数%s，暂停域名爆破'%count)
-                    time.sleep(1800)
-                else:
-                    break
+            count = mysql.execute('select count(id) as count from domains;')[0]['count']
+            if count > 300:
+                print('目前目标数%s，暂停域名爆破'%count)
+                time.sleep(1800)
+            else:
+                break
 
             mysql.execute('delete from target where id=%s;',(result['id']))
 
@@ -67,6 +66,7 @@ def getChildDomain(mysql):
             Process('rm -rf tools/OneForAll/result/*').exe(outFlag=False)
     except KeyboardInterrupt:
         mysql.execute('insert into target(domain) value(%s);',(result['domain']))
-    except Exception:
+    except Exception as e:
+        print(e)
         print('报错，重新执行')
         getChildDomain(mysql)
