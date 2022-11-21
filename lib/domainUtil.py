@@ -15,13 +15,6 @@ def getChildDomain(mysql):
             except IndexError:
                 print('[-] 目前无扫描域名，等待5分钟。')
                 time.sleep(300)
-            count = mysql.execute('select count(id) as count from domains;')[0]['count']
-            if count > 300:
-                print('目前目标数%s，暂停域名爆破'%count)
-                time.sleep(1800)
-            else:
-                break
-
             mysql.execute('delete from target where id=%s;',(result['id']))
 
             #调用工具开始爆破子域名
