@@ -9,16 +9,22 @@ import os
 flagDict = {}
 
 
-class xrayProcess():
-    def __init__(self,url):
+class scanProcess():
+    def __init__(self,url,type):
         self.url = url
+        self.type = type
 
-    def run(self):
+    def exe(self):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/xray/')
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
-        popen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
+
+        if self.type == 'scan':
+            popen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
             self.url,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
+        elif self.type == 'nuclei':
+            popen = Popen('../nuclei -rl 300 -bs 35 -c 30  -mhe 10 -ni -u %s -o ../../xrayresult/%s-nuclei.txt -stats -silent -severity critical,medium,high,low' % (
+                self.url, getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         try:
             while True:
                 line = popen.stdout.readline().decode('utf-8')
@@ -36,7 +42,7 @@ class xrayProcess():
         finally:
             popen.kill()
 
-def scan(mysql):
+def scan(mysql,type):
     try:
         while True:
             try:
@@ -45,7 +51,7 @@ def scan(mysql):
                 print('无子域名，等待5分钟。')
                 time.sleep(300)
             mysql.execute('delete from domains where id=%s;', (result['id']))
-            xrayProcess(result['url']).run()
+            scanProcess(result['url'],type).exe()
 
     except KeyboardInterrupt:
         pass

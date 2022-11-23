@@ -23,8 +23,10 @@ if __name__ == '__main__':
         if opt in ('method','-m'):
             if arg == 'domain':
                 getChildDomain(mysql)
-            elif arg == 's':
-                scan(mysql)#输入监听的端口号
+            elif arg == 'x':
+                scan(mysql,'xray')#扫描类型
+            elif arg == 'n':
+                scan(mysql,'nuclei')#扫描类型
             elif arg == 'a':
                 rows = []
                 print('输入domain，输入quit退出，输入回车终止')
