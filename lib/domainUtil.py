@@ -4,7 +4,7 @@ import sys
 
 from lib.sub import Process
 from lib.utils import getTime
-from nslookUtil import nslookup
+from lib.nslookUtil import nslookup
 import csv,time,re,json,requests
 
 ipRe = re.compile(r'(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)')
