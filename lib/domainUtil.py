@@ -38,7 +38,7 @@ def getChildDomain(mysql):
                     else:
                         print('[-] 无域名需爆破，重新下载赏金目标')
                         Process('rm -rf bountyFile/*').exe()#删除原本的所有文件
-                        result = json.dump(requests.get('https://chaos-data.projectdiscovery.io/index.json',verify=False).text)
+                        result = json.loads(requests.get('https://chaos-data.projectdiscovery.io/index.json',verify=False).text)
                         for target in result:
                             if target['bounty']:
                                 with open('bountyFile/'+target['URL'][target['URL'].rindex('/')+1:],'wb') as targetZip:
