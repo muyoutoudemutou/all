@@ -17,7 +17,7 @@ class xrayProcess():
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/xray/')
         env = os.environ.copy()
         env['PYTHONUNBUFFERED'] = '1'
-        popen = Popen('./xray ws --basic-crawler %s --webhook-output http://127.0.0.1:2233/webhook --html-output ../../xrayresult/%s.html' % (
+        popen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
             self.url,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         try:
             while True:
