@@ -41,7 +41,7 @@ def getChildDomain(mysql):
                         Process('rm -rf bountyFile/*').exe()#删除原本的所有文件
                         result = json.loads(requests.get('https://chaos-data.projectdiscovery.io/index.json',verify=False).text)
                         for target in result:
-                            if target['bounty']:
+                            if target['bounty'] == True and (target['platform'] == 'hackerone' or target['platform'] == 'bugcrowd'):
                                 with open('bountyFile/'+target['URL'][target['URL'].rindex('/')+1:],'wb') as targetZip:
                                     targetZip.write(requests.get(target['URL']).content)
                         Process('lib/unzip.sh').exe()#解压
