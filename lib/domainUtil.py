@@ -20,7 +20,7 @@ def getChildDomain(mysql):
                 except KeyboardInterrupt:
                     mysql.execute('insert into target(domain) value(%s);', (result['domain']))
             except IndexError:
-                result = mysql.execute('select id,url,remark from domains where remark = "bounty" limit 0,50;')
+                result = mysql.execute('select id,url,remark from domains where remark = "bounty" limit 0,100;')
                 if len(result):
                     try:
                         getbountyDoamins(result, mysql)

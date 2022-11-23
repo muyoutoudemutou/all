@@ -36,7 +36,7 @@ def testDns():
     with open('dns.txt', 'r')as f:
         for dns in f.readlines():
             dns = dns.replace('\n','')
-            testThread[dns] = Process(' '.join(('ping', dns, '-c 5')))
+            testThread[dns] = Process(' '.join(('ping', dns, '-c 3')))
             testThread[dns].start()
     count = len(testThread.keys())
     dnss = []
