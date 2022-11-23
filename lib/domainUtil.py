@@ -35,7 +35,7 @@ def getChildDomain(mysql):
                     if result:#还没扫描完
                         print('[-] 无域名需爆破，等待扫描结束。')
                         time.sleep(300)
-                        break
+                        continue
                     else:
                         print('[-] 无域名需爆破，重新下载赏金目标')
                         Process('rm -rf bountyFile/*').exe()#删除原本的所有文件
