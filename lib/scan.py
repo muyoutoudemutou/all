@@ -42,18 +42,25 @@ class scanProcess():
         finally:
             popen.kill()
 
-def scan(mysql,type):
+def scan(mysql):
     try:
         while True:
             try:
-                result = mysql.execute('select id,url from domains where remark = "scan" limit 0,1;')[0]
+                result = mysql.execute('select id,url,remark from domains where remark = "scan" limit 0,1;')[0]
             except IndexError:
-                print('无子域名，等待5分钟。')
-                time.sleep(300)
+                try:
+                    result = mysql.execute('select id,url,remark from domains where remark = "bountyscan" limit 0,1;')[0]
+                except IndexError:
+                    print('无子域名，等待5分钟。')
+                    time.sleep(300)
+
             mysql.execute('delete from domains where id=%s;', (result['id']))
-            scanProcess(result['url'],type).exe()
+            if result['remark'] == 'scan':
+                scanProcess(result['url'], 'xray').exe()
+            elif result['remark'] == 'bountyscan':
+                scanProcess(result['url'], 'nuclei').exe()
 
     except KeyboardInterrupt:
         pass
     finally:
-        mysql.execute('insert into domains(id,url) value(%s,%s);', (result['id'],result['url']))
+        mysql.execute('insert into domains(id,url,remark) value(%s,%s,%s);', (result['id'],result['url'],result['remark']))

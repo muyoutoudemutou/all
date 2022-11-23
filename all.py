@@ -18,15 +18,13 @@ if __name__ == '__main__':
     mysql = MySQLconnect(user,passwd,db,host=host)
 
     if len(sys.argv) < 2:
-        print('python3 all.py -m domain|s(xray)|a(add)|f')
+        print('python3 all.py -m domain|s(scan)|a(add)|f')
     for opt,arg in opts:
         if opt in ('method','-m'):
             if arg == 'domain':
                 getChildDomain(mysql)
-            elif arg == 'x':
-                scan(mysql,'xray')#扫描类型
-            elif arg == 'n':
-                scan(mysql,'nuclei')#扫描类型
+            elif arg == 's':
+                scan(mysql)#扫描类型
             elif arg == 'a':
                 rows = []
                 print('输入domain，输入quit退出，输入回车终止')
