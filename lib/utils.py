@@ -7,3 +7,4 @@ import time
 def getTime(format='%Y-%m-%d %H:%M:%S'):
     now = time.strftime(format,time.localtime(time.time()))
     return now
+
