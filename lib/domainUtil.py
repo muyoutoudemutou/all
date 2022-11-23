@@ -22,7 +22,7 @@ def getChildDomain(mysql):
             except IndexError:
                 #result = mysql.execute('select id,url,remark from domains where remark = "bounty" limit 0,100;')
                 result = None#赏金不做细致扫描，顶不住
-                if len(result):
+                if result:
                     try:
                         getbountyDoamins(result, mysql)
                     except KeyboardInterrupt:
