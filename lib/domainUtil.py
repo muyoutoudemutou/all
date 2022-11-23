@@ -47,6 +47,8 @@ def getChildDomain(mysql):
                         rows = []
                         with open('bountyFile/alltargets.txt','r') as targeturl:
                             for line in targeturl.readlines():
+                                if 'test' in line or len(line) > 32:
+                                    continue
                                 rows.append((line.strip(),'bounty'))
                         mysql.execute('insert into domains(url,remark) value(%s,%s);',args=rows)
 
