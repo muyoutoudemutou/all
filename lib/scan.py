@@ -42,11 +42,14 @@ class scanProcess():
 def scan(mysql):
     try:
         while True:
+            type = ''
             try:
                 result = mysql.execute('select id,url,remark from domains where remark = "scan" limit 0,1;')[0]
+                type = 'scan'
             except IndexError:
                 try:
                     result = mysql.execute('select id,url,remark from domains where remark = "bountyscan" limit 0,500;')
+                    type = 'bountyscan'
                     ids = []
                     with open('nucleitarget.txt', 'w')as nfile:
                         for row in result:
@@ -57,9 +60,9 @@ def scan(mysql):
                     time.sleep(300)
 
             mysql.execute('delete from domains where id=%s;',args=ids)
-            if result['remark'] == 'scan':
+            if type == 'scan':
                 scanProcess(result['url'], 'xray').exe()
-            elif result['remark'] == 'bountyscan':
+            elif type == 'bountyscan':
                 scanProcess(result['url'], 'nuclei').exe()
 
     except KeyboardInterrupt:
