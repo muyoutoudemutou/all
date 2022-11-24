@@ -10,6 +10,7 @@ class scanProcess():
     def __init__(self,url,type):
         self.url = url
         self.type = type
+        self.exepopen = None
 
     def exe(self):
         os.chdir(os.path.dirname(os.path.abspath(__file__)) + '/../tools/xray/')
@@ -68,4 +69,7 @@ def scan(mysql):
     except KeyboardInterrupt:
         pass
     finally:
+        rows = []
+        for row in result:
+            rows.append((row['id'],row['url'],row['remark']))
         mysql.execute('insert into domains(id,url,remark) value(%s,%s,%s);', args=result)
