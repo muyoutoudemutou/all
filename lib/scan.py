@@ -20,7 +20,7 @@ class scanProcess():
         if self.type == 'scan':
             self.exepopen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
             self.url,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
-        elif self.type == 'nuclei':
+        elif self.type == 'bountyscan':
             self.exepopen = Popen('../nuclei -l ../../nucleitarget.txt -rl 300 -bs 35 -c 30 -mhe 10 -ni -o ../../xrayresult/%s-nuclei.txt -stats -silent -severity critical,medium,high,low' % (
                 getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         try:
