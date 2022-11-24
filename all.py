@@ -45,7 +45,7 @@ if __name__ == '__main__':
                     for line in domainFile.readlines():
                         rows.append(line.strip())
                 mysql.execute(
-                    'insert into domains(url) value(%s);',
+                    'insert into domains(url,remark) value(%s,"scan");',
                     args=rows)
             else:
                 print('python3 all.py -m domain|s(xray)|a(add)|f')

@@ -136,7 +136,7 @@ def getbountyDoamins(result,mysql):
         for line in newurlsfile.readlines():
             print(line)
             if len(line.strip()):
-                rows.append((line.strip(), 'bountyscanscan'))
+                rows.append((line.strip(), 'bountyscan'))
     print('\n\n\n')
     if len(rows) > 0:
         mysql.execute('insert into domains(url,remark) value(%s,%s);', args=rows)
