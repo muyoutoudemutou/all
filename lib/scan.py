@@ -20,8 +20,8 @@ class scanProcess():
             exepopen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
             self.url,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         elif self.type == 'nuclei':
-            exepopen = Popen('../nuclei -l ../../nucleitarget.txt -rl 300 -bs 35 -c 30 -mhe 10 -ni -u %s -o ../../xrayresult/%s-nuclei.txt -stats -silent -severity critical,medium,high,low' % (
-                self.url, getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
+            exepopen = Popen('../nuclei -l ../../nucleitarget.txt -rl 300 -bs 35 -c 30 -mhe 10 -ni -o ../../xrayresult/%s-nuclei.txt -stats -silent -severity critical,medium,high,low' % (
+                getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         try:
             while True:
                 line = exepopen.stdout.readline().decode('utf-8')
@@ -61,9 +61,9 @@ def scan(mysql):
 
             mysql.execute('delete from domains where id=%s;',args=ids)
             if type == 'scan':
-                scanProcess(result['url'], 'xray').exe()
+                scanProcess(result['url'], type).exe()
             elif type == 'bountyscan':
-                scanProcess(result['url'], 'nuclei').exe()
+                scanProcess('',type).exe()
 
     except KeyboardInterrupt:
         pass
