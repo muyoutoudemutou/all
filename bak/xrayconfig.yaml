@@ -68,7 +68,7 @@ plugins:
     enabled: true
     depth: 1
     auto_load_poc: false                # 除内置 poc 外，额外自动加载当前目录以 "poc-" 为文件名前缀的POC文件，等同于在 include_poc 中增加 "./poc-*"
-    exclude_poc: []                     # 排除哪些 poc, 支持 glob 语法, 如: "/home/poc/*thinkphp*" 或 "poc-yaml-weblogic*"
+    exclude_poc: ["poc-yaml-drawio-cve-2022-1713-ssrf","jsonp/jsonp/default","dirscan/sensitive/crossdomain","dirscan/sourcemap/default","poc-yaml-zoho-cve-2022-23779-info-leak"]                     # 排除哪些 poc, 支持 glob 语法, 如: "/home/poc/*thinkphp*" 或 "poc-yaml-weblogic*"
     include_poc: []                     # 只使用哪些内置 poc 以及 额外加载哪些本地 poc, 支持 glob 语法, 如："*weblogic*" 或 "/home/poc/*"
                                         # 也可使用 --poc 仅运行 指定的内置或本地 poc，进行测试。
                                         # 例如，可使用如下命令，仅运行当前目录下的 poc 且 不运行内置 poc 进行测试：
