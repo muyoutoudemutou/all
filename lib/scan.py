@@ -17,27 +17,27 @@ class scanProcess():
         env['PYTHONUNBUFFERED'] = '1'
 
         if self.type == 'scan':
-            exepopen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
+            self.exepopen = Popen('./xray ws --basic-crawler %s --html-output ../../xrayresult/%s.html' % (
             self.url,getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         elif self.type == 'nuclei':
-            exepopen = Popen('../nuclei -l ../../nucleitarget.txt -rl 300 -bs 35 -c 30 -mhe 10 -ni -o ../../xrayresult/%s-nuclei.txt -stats -silent -severity critical,medium,high,low' % (
+            self.exepopen = Popen('../nuclei -l ../../nucleitarget.txt -rl 300 -bs 35 -c 30 -mhe 10 -ni -o ../../xrayresult/%s-nuclei.txt -stats -silent -severity critical,medium,high,low' % (
                 getTime('%Y%m%d%H%M%S')), stdout=PIPE, shell=True, env=env)
         try:
             while True:
-                line = exepopen.stdout.readline().decode('utf-8')
+                line = self.exepopen.stdout.readline().decode('utf-8')
                 if line:
                     try:
                         print(line,end='')
                     except:
                         pass
-                elif not line and exepopen.poll() != None:
+                elif not line and self.exepopen.poll() != None:
                     break
                 else:
                     pass
         except Exception as e:
             print(e)
         finally:
-            exepopen.kill()
+            self.exepopen.kill()
 
 def scan(mysql):
     try:
