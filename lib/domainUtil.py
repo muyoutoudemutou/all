@@ -53,7 +53,7 @@ def getChildDomain(mysql):
                                 rows.append((line.strip(),'bountyscan'))
                         mysql.execute('insert into domains(url,remark) value(%s,%s);',args=rows)
     except KeyboardInterrupt:
-        pass
+        exit(0)
     except Exception as e:
         print(e)
         print('报错，重新执行')
@@ -78,6 +78,8 @@ def getChildDomainForOne(result,mysql):
                 print(line['url'])
                 urlrows.append((line['url'],'scan'))
 
+
+
     rows = list(set(rows))  # 去重
 
     if len(urlrows) > 0:
@@ -86,6 +88,9 @@ def getChildDomainForOne(result,mysql):
     with open('iptemp.txt', 'w') as ipfile:
         for row in rows:
             ipfile.write(row + '\n')
+
+    Process('./tools/fscan -hf iptemp.txt -o oneforallresult/%s_fscan.txt' %
+    result['domain']).exe()
 
     print('开始端口扫描')
     Process(
