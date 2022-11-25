@@ -52,7 +52,8 @@ def getChildDomain(mysql):
                                     continue
                                 rows.append((line.strip(),'bountyscan'))
                         mysql.execute('insert into domains(url,remark) value(%s,%s);',args=rows)
-
+    except KeyboardInterrupt:
+        pass
     except Exception as e:
         print(e)
         print('报错，重新执行')
