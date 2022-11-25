@@ -54,10 +54,6 @@ def getChildDomain(mysql):
                         mysql.execute('insert into domains(url,remark) value(%s,%s);',args=rows)
     except KeyboardInterrupt:
         exit(0)
-    except Exception as e:
-        print(e)
-        print('报错，重新执行')
-        getChildDomain(mysql)
 
 def getChildDomainForOne(result,mysql):
     mysql.execute('delete from target where id=%s;', (result['id']))
