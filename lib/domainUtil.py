@@ -63,12 +63,12 @@ def getChildDomainForOne(result,mysql):
 
     # 调用工具开始爆破子域名
     print('[+] 开始 %s 子域名扫描,命令如下:' % result['domain'])
-    Process('python3 tools/OneForAll/oneforall.py --target %s --path domains.csv --alive true --fmt csv run' % result[
-        'domain']).exe(outFlag=True)
+    Process('python3 tools/OneForAll/oneforall.py --target %s --path oneforallresult/%s_domains.csv --alive true --fmt csv run' % (result['domain'],result[
+        'domain'])).exe(outFlag=True)
 
     rows = []
     urlrows = []
-    with open('domains.csv', 'r') as domains:
+    with open('oneforallresult/%s_domains.csv'%result['domain'], 'r') as domains:
         domain_csv = csv.DictReader(domains)
         print('发现域名如下：')
         for line in domain_csv:
