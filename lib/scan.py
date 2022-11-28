@@ -43,15 +43,16 @@ class scanProcess():
 def scan(mysql):
     try:
         while True:
+            ids = []
             type = ''
             try:
                 result = mysql.execute('select id,url,remark from domains where remark = "scan" limit 0,1;')[0]
+                ids.append(result['id'])
                 type = 'scan'
             except IndexError:
                 try:
                     result = mysql.execute('select id,url,remark from domains where remark = "bountyscan" limit 0,500;')
                     type = 'bountyscan'
-                    ids = []
                     with open('nucleitarget.txt', 'w')as nfile:
                         for row in result:
                             nfile.write(row['url']+'\n')
